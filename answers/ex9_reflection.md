@@ -4,28 +4,31 @@
 
 ### Your answer
 
-In my Ex7 run (session sess_a382a2149fc1), the planner's second
-subgoal was sg_2 "commit the booking under policy rules" with
-assigned_half: "structured". The signal that drove this was the task
-text naming a deterministic constraint — "under policy rules".
-Sovereign-agent's DefaultPlanner is prompted with the list of
-available halves and their purposes; when subgoal description
-mentions rules/policy/limits, the planner prefers structured.
+In session sess_9cebe396e4d0 the planner produced 3 subgoals at
+16:53:12, all assigned_half: "loop" (visible in session.json under
+planner.subgoals). None were assigned to the structured half — the
+task description contained no policy/rules language, only open-ended
+research instructions ("compile a list", "select the most suitable",
+"draft the flyer"). The DefaultPlanner reads the subgoal description
+and routes to structured only when it sees constraint language like
+"under policy rules" or "confirm within limits".
 
-This decision is advisory, not physical. The orchestrator respects
-it only because both halves are wired up. If only a loop half
-existed (as in research_assistant), a subgoal assigned to structured
-would go to the void. That's failure mode #4 from the course slides.
+The handoff_to_structured that did occur (16:53:58) was not a planned
+subgoal assignment — it was the executor bailing out after 3 failed
+venue_search calls, passing the dead end to the structured half with
+reason: "Venue search returned no results despite multiple parameter
+adjustments". This is a failure-mode handoff, not a planned one.
 
-The broader lesson: the planner makes an architectural decision
-based on prose interpretation. Put the rules somewhere the LLM
-cannot mis-assign — in the structured half's Python — and prose
-ambiguity no longer matters.
+The distinction matters: planned handoffs carry a subgoal with a
+success criterion; failure handoffs carry a reason and raw search
+data. A structured half receiving a failure handoff needs to detect
+this difference, or it will try to confirm a booking that was never
+found.
 
 ### Citation
 
-- sessions/sess_a382a2149fc1/logs/tickets/tk_*/raw_output.json
-- sessions/sess_a382a2149fc1/logs/trace.jsonl:23
+- sess_9cebe396e4d0/session.json — planner.subgoals[*].assigned_half
+- sess_9cebe396e4d0/logs/trace.jsonl — executor.tool_called handoff_to_structured at 16:53:58
 
 ---
 
@@ -33,26 +36,31 @@ ambiguity no longer matters.
 
 ### Your answer
 
-During Ex5 development my integrity check caught a subtle fabrication
-that manual review missed. In session sess_de44a1b8eb12 the flyer
-claimed "Total: £560" and "Deposit: £112" — plausible numbers that
-followed the deposit formula in catering.json. I skimmed and moved on.
+Session sess_9cebe396e4d0 shows a clean failure of dataflow integrity
+that the integrity check would have caught. The task in SESSION.md
+specified party_size=6 and near='Haymarket'. The executor called
+venue_search with party_size=10 and near='Edinburgh City Centre' —
+neither parameter matches the task. All three search attempts returned
+0 results, and workspace/ remained empty (no flyer.html produced).
 
-verify_dataflow returned ok=False with unverified_facts=['£560','£112'].
-The trace showed calculate_cost returned total_gbp=540, deposit=0. The
-real total was £540 under the £300 deposit threshold. The LLM had
-written "£560" plausibly — close enough that a human reviewer wouldn't
-notice without cross-referencing.
+The offline run (sess_0958e6435e99) shows the contrast: the
+FakeLLMClient followed the required tool sequence exactly, produced
+flyer.html (1415 bytes), and the integrity check returned "verified 4
+fact(s) against tool outputs". The real LLM hallucinated both the
+party size and the location, producing a session that looked
+successful (all tool calls returned success: true) but delivered
+nothing.
 
-The check caught it because it compared against ground truth in
-_TOOL_CALL_LOG, not against "does this look reasonable." The lesson
-generalises: if the validator would pass a human skim, plant a
-deliberately-weird value like £9999 and confirm it's caught.
+This is why integrity checks must compare against _TOOL_CALL_LOG
+ground truth, not against "did the tool return success". Every call
+in sess_9cebe396e4d0 returned success: true — the executor had no
+signal that anything was wrong until 0 results came back three times.
 
 ### Citation
 
-- sessions/sess_de44a1b8eb12/workspace/flyer.md:12
-- sessions/sess_de44a1b8eb12/logs/trace.jsonl:15
+- sess_9cebe396e4d0/logs/trace.jsonl — party_size=10 vs SESSION.md party_size=6
+- sess_9cebe396e4d0/workspace/ — empty, no flyer.html
+- sess_0958e6435e99 — offline run, dataflow OK, 4 facts verified
 
 ---
 
@@ -60,20 +68,25 @@ deliberately-weird value like £9999 and confirm it's caught.
 
 ### Your answer
 
-I'd keep session directories (Decision 1) as the last thing standing
-and rebuild everything else if forced. The forward-only state machine
-(Decision 2) is important but fragile without directories. Tickets
-(Decision 3) I could rebuild as .jsonl files inside the session.
-Atomic-rename IPC (Decision 5) is replaceable by directory polling.
+I would keep session directories and remove atomic-rename IPC last.
+The argument from sess_9cebe396e4d0: that session exists in state
+"executing" with no result and an empty workspace. Without the
+directory I cannot answer "what did the executor actually call" — the
+trace.jsonl is the only record that party_size=10 was used instead of
+6. Remove session directories and this failure becomes invisible; the
+only observable symptom is "no flyer" with no explanation.
 
-Session directories are the irreplaceable piece. Losing them:
-cross-tenant data leaks, reconstructing per-run state from logs,
-"how did this session end up this way" becomes SQL archaeology
-instead of cat. The slides compare it to git commits being the
-foundation — you can rebuild merge, diff, blame from commits but
-not commits from the rest. Session directories are commits.
+Tickets (tk_0fd24a1c, tk_a8986418, tk_dfc0e5f2 from sess_0958e6435e99)
+I could reconstruct as append-only lines in trace.jsonl. Atomic-rename
+IPC I could replace with directory polling with a small latency cost.
+The forward-only state machine matters but is enforceable in code
+without a separate primitive.
+
+Session directories are the audit layer. Everything else can be
+rebuilt from them. They cannot be rebuilt from anything else.
 
 ### Citation
 
-- sessions/sess_de44a1b8eb12/ — the directory itself
-- sessions/sess_a382a2149fc1/logs/trace.jsonl
+- sess_9cebe396e4d0/session.json — state: "executing", result: null
+- sess_9cebe396e4d0/logs/trace.jsonl — only source of ground truth for hallucinated args
+- sess_0958e6435e99 tickets — tk_0fd24a1c, tk_a8986418, tk_dfc0e5f2
