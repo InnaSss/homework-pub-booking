@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "from_half": "loop",
+  "to_half": "structured",
+  "written_at": "2026-05-13T16:53:58.100137+00:00",
+  "session_id": "sess_9cebe396e4d0",
+  "reason": "Venue search returned no results despite multiple parameter adjustments",
+  "context": "Researching Edinburgh venues for party size 10 with budgets up to \u00a31000",
+  "data": {
+    "search_attempts": [
+      {
+        "area": "City Centre",
+        "budget": 100
+      },
+      {
+        "area": "Old Town",
+        "budget": 500
+      },
+      {
+        "area": "Edinburgh",
+        "budget": 1000
+      }
+    ]
+  },
+  "return_instructions": ""
+}

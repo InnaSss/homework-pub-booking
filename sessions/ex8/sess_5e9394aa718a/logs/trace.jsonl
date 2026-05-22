@@ -1,0 +1,8 @@
+{"event_type": "voice.utterance_in", "actor": "user", "timestamp": "2026-05-20T16:13:11.297278+00:00", "payload": {"text": "Hi, I'd like to book your pub for 6 people on April 25th at 7:30pm. What's the deposit?", "turn": 0, "mode": "text"}}
+{"event_type": "voice.utterance_out", "actor": "manager", "timestamp": "2026-05-20T16:13:17.379959+00:00", "payload": {"text": "Deposit's \u00a3200. Aye, we can do that. I'll pencil you in for April 25th at 7:30pm. What's the contact number?", "turn": 0, "mode": "text"}}
+{"event_type": "voice.utterance_in", "actor": "user", "timestamp": "2026-05-20T16:13:54.527635+00:00", "payload": {"text": "07555662234", "turn": 1, "mode": "text"}}
+{"event_type": "voice.utterance_out", "actor": "manager", "timestamp": "2026-05-20T16:14:01.403534+00:00", "payload": {"text": "Got it, 07555662234. You're booked for April 25th at 7:30pm.", "turn": 1, "mode": "text"}}
+{"event_type": "voice.utterance_in", "actor": "user", "timestamp": "2026-05-20T16:14:06.657301+00:00", "payload": {"text": "\u0435\u0440\u0444\u0442\u043b\u044b", "turn": 2, "mode": "text"}}
+{"event_type": "voice.utterance_out", "actor": "manager", "timestamp": "2026-05-20T16:14:14.355588+00:00", "payload": {"text": "Dinnae ken what ye mean. Speak plain, please.", "turn": 2, "mode": "text"}}
+{"event_type": "voice.utterance_in", "actor": "user", "timestamp": "2026-05-20T16:14:20.060288+00:00", "payload": {"text": "thanks", "turn": 3, "mode": "text"}}
+{"event_type": "voice.utterance_out", "actor": "manager", "timestamp": "2026-05-20T16:14:21.018496+00:00", "payload": {"text": "Ye're welcome.", "turn": 3, "mode": "text"}}

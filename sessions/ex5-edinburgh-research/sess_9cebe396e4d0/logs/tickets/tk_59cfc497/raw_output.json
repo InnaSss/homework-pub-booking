@@ -1,0 +1,88 @@
+{
+  "subgoal_id": "sg_1",
+  "success": true,
+  "final_answer": "(handoff requested)",
+  "tool_calls_made": [
+    {
+      "name": "venue_search",
+      "arguments": {
+        "near": "Edinburgh City Centre",
+        "party_size": 10,
+        "budget_max_gbp": 100
+      },
+      "success": true,
+      "summary": "venue_search(Edinburgh City Centre, party=10): 0 result(s)",
+      "requires_human_approval": false
+    },
+    {
+      "name": "venue_search",
+      "arguments": {
+        "near": "Edinburgh Old Town",
+        "party_size": 10,
+        "budget_max_gbp": 500
+      },
+      "success": true,
+      "summary": "venue_search(Edinburgh Old Town, party=10): 0 result(s)",
+      "requires_human_approval": false
+    },
+    {
+      "name": "venue_search",
+      "arguments": {
+        "near": "Edinburgh",
+        "party_size": 10,
+        "budget_max_gbp": 1000
+      },
+      "success": true,
+      "summary": "venue_search(Edinburgh, party=10): 0 result(s)",
+      "requires_human_approval": false
+    },
+    {
+      "name": "handoff_to_structured",
+      "arguments": {
+        "reason": "Venue search returned no results despite multiple parameter adjustments",
+        "context": "Researching Edinburgh venues for party size 10 with budgets up to \u00a31000",
+        "data": {
+          "search_attempts": [
+            {
+              "area": "City Centre",
+              "budget": 100
+            },
+            {
+              "area": "Old Town",
+              "budget": 500
+            },
+            {
+              "area": "Edinburgh",
+              "budget": 1000
+            }
+          ]
+        }
+      },
+      "success": true,
+      "summary": "handoff to structured half: Venue search returned no results despite multiple parameter adjustments",
+      "requires_human_approval": false
+    }
+  ],
+  "turns_used": 4,
+  "handoff_requested": true,
+  "handoff_payload": {
+    "reason": "Venue search returned no results despite multiple parameter adjustments",
+    "context": "Researching Edinburgh venues for party size 10 with budgets up to \u00a31000",
+    "data": {
+      "search_attempts": [
+        {
+          "area": "City Centre",
+          "budget": 100
+        },
+        {
+          "area": "Old Town",
+          "budget": 500
+        },
+        {
+          "area": "Edinburgh",
+          "budget": 1000
+        }
+      ]
+    }
+  }
+}
