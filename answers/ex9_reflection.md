@@ -30,9 +30,9 @@ the loop result and dispatches accordingly.
 
 ### Citation
 
-- sess_6bfdd94fa8fd/logs/trace.jsonl — bridge.round_start round 1,
+- sessions/ex7-handoff-bridge/sess_6bfdd94fa8fd/logs/trace.jsonl — bridge.round_start round 1,
   executor.tool_called handoff_to_structured at 16:11:46
-- sess_6bfdd94fa8fd/logs/trace.jsonl — session.state_changed
+- sessions/ex7-handoff-bridge/sess_6bfdd94fa8fd/logs/trace.jsonl — session.state_changed
   loop→structured and structured→loop, round 1 and round 2
 
 ---
@@ -56,22 +56,21 @@ flyer against _TOOL_CALL_LOG ground truth — but here there was no
 flyer to check, which is itself a catch: the scenario requires
 generate_flyer to be called, and it never was.
 
-The offline run (sess_0958e6435e99 with FakeLLMClient) shows the
-contrast: correct parameters throughout, flyer.html written at
-1415 bytes, integrity check returned "verified 4 fact(s) against
-tool outputs". The real LLM hallucinated both party_size (10
-instead of 6) and location (City Centre instead of Haymarket),
-producing a session that looked clean by tool-call success flags
-alone but delivered nothing. The check is the only layer that
-would surface this — every call returned success: true.
+The contrast is visible in the same session directory: SESSION.md
+specifies the required tool sequence explicitly (venue_search →
+get_weather → calculate_cost → generate_flyer → complete_task),
+and the trace shows only venue_search was called three times before
+handoff_to_structured. The integrity check is the only layer that
+would surface this — every call returned success: true, so the
+executor had no signal that anything was wrong until 0 results
+came back three times.
 
 ### Citation
 
-- sess_9cebe396e4d0/logs/trace.jsonl — party_size=10 vs
-  SESSION.md party_size=6; near="Edinburgh City Centre" vs
-  near="Haymarket"
-- sess_9cebe396e4d0/workspace/ — empty, no flyer.html produced
-- sess_0958e6435e99 — offline run, 4 facts verified
+- sessions/ex5-edinburgh-research/sess_9cebe396e4d0/logs/trace.jsonl — party_size=10 vs
+  SESSION.md party_size=6; near="Edinburgh City Centre" vs near="Haymarket"
+- sessions/ex5-edinburgh-research/sess_9cebe396e4d0/SESSION.md — required tool sequence
+- sessions/ex5-edinburgh-research/sess_9cebe396e4d0/session.json — state: "executing", result: null
 
 ---
 
@@ -106,7 +105,7 @@ silent drop.
 
 ### Citation
 
-- sess_6bfdd94fa8fd/logs/trace.jsonl — session.state_changed
-  structured→loop, rejection_reason "rasa unreachable:
-  Connection refused", rounds 1 and 2
-- sess_6bfdd94fa8fd/ipc/ — handoff file written before HTTP call
+- sessions/ex7-handoff-bridge/sess_6bfdd94fa8fd/logs/trace.jsonl — session.state_changed
+  structured→loop, rejection_reason "rasa unreachable: Connection refused", rounds 1 and 2
+- sessions/ex7-handoff-bridge/sess_6bfdd94fa8fd/ipc/handoff_to_structured.json — handoff file
+  written before HTTP call
